@@ -36,9 +36,8 @@ let firebaseConfig = {
 
      // Crear icono de papelera
      let deleteIcon = document.createElement("span");
-     deleteIcon.textContent = "✏️";
+     deleteIcon.textContent = "🗑️";
      deleteIcon.style.cursor = "pointer";
-     deleteIcon.style.marginLeft = "30px";
      deleteIcon.addEventListener('click', () => {
         let confirmDelete = window.confirm(`¿Deseas borrar el contacto ${nombre} con el email ${email}?`);
         if (confirmDelete) {
