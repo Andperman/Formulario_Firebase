@@ -41,7 +41,7 @@ let firebaseConfig = {
      deleteIcon.addEventListener('click', () => {
         let confirmDelete = window.confirm(`¿Deseas borrar el contacto ${nombre} con el email ${email}?`);
         if (confirmDelete) {
-            deleteUsuario(docId); // Si se acepta, se elimina el contacto
+            deleteUsuario(docId); 
         }
     });
   
@@ -56,20 +56,20 @@ let firebaseConfig = {
   };
   
 
-  //Create
+  //FUNCIÓN CREAR USUARIO
   const createUsuario = (datosUsuario) => {
     db.collection("usuarios")
       .add(datosUsuario)
       .then((docRef) => {
-          console.log("Document written with ID: ", docRef.id); // Cambiado a docRef.id
-          cleanForm(); // Limpiar formulario después de crear usuario
-          // Llamar a readAll para actualizar la vista
+          console.log("Document written with ID: ", docRef.id); 
+          cleanForm(); // Limpiar formulario 
+         
           readAll();
       })
       .catch((error) => console.error("Error adding document: ", error));
 };
 
-  //Read all
+  //VER TODOS LOS CONTACTOS
   const readAll = () => {
     // Limpia el album para mostrar el resultado
     cleanUsuarios();
@@ -97,7 +97,31 @@ let firebaseConfig = {
   
   };
   
-  //Eliminar un usuario específico papelera
+
+
+    // BUSCAR UN USUARIO
+  
+  // Ajustar la función readOne
+function readOne(id) {
+  // Limpia el album para mostrar el resultado
+  cleanUsuarios();
+
+  //Petición a Firestore para leer un documento de la colección album 
+  var docRef = db.collection("usuarios").doc(id);
+
+  docRef.get().then((doc) => {
+      if (doc.exists) {
+          console.log("Document data:", doc.data());
+          printPhoto(doc.data().nombre, doc.data().email, doc.data().comentario, doc.data().imagen, doc.id);
+      } else {
+          console.log("No such document!");
+      }
+  }).catch((error) => {
+      console.log("Error getting document:", error);
+  });
+}
+
+  //ELIMINAR USUARIO ESPECÍFICO (PAPELERA)
  const deleteUsuario = (docId) => {
     db.collection('usuarios').doc(docId).delete().then(() => {
       alert(`Documento ${docId} ha sido borrado`);
@@ -110,16 +134,16 @@ let firebaseConfig = {
   };
    
   
-  //Eliminar todos los usuarios
+  //ELIMINAR TODOS LOS USUARIOS
   const deleteAllUsuarios = () => {
-    db.collection("usuarios")
-      .get()
-      .then((querySnapshot) => {
-        const batch = db.batch(); // Usa batch para eliminar varios documentos
+    db.collection("usuarios") //accedemos colección
+      .get() //obtenemos información 
+      .then((querySnapshot) => { //contiene todos los doucmentos
+        const batch = db.batch(); // BATCH , función que permite realizar multiples operaciones
         querySnapshot.forEach((doc) => {
-          batch.delete(doc.ref); // Elimina cada documento
+          batch.delete(doc.ref); 
         });
-        return batch.commit(); // Realiza la eliminación
+        return batch.commit(); 
       })
       .then(() => {
         console.log("Todos los usuarios han sido eliminados.");
@@ -128,9 +152,12 @@ let firebaseConfig = {
       })
       .catch((error) => console.error("Error deleting documents: ", error));
   };
+
+
+
   
 
-
+  //BORAR EL FORMULARIO CADA VEZ QUE SE REALIZA
   const cleanForm = () => {
     document.getElementById("nombre").value = '';
     document.getElementById("email").value = '';
@@ -138,41 +165,33 @@ let firebaseConfig = {
     document.getElementById("imagen").value = '';
 };
 
+//BORRA LISTA DE CONTACTOS
+
 const cleanUsuarios = () => {
     document.getElementById("usuarios").innerHTML = ''; // Limpia el contenedor de usuarios
 };
 
 
-// Boton de crear usuario
-document.getElementById("create").addEventListener("click", () => {
-    cleanForm(); // Limpia el formulario antes de mostrarlo
-    
-});
-  
-  //**********EVENTS**********
-  //Create
+  //**********EVENTOS**********
+  //CREATE
+
   document.getElementById("btn_enviar").addEventListener("click", (event) => {
   
     event.preventDefault(); // paraliza envío formulario
+  //tomamos los valores de los campos
+    
+  const nombre = document.getElementById("nombre").value;
+  const email = document.getElementById("email").value;
+  const comentario = document.getElementById("comentario").value;
+  const imagen = document.getElementById("imagen").value;
   
-      let dgetBId_nombre = document.getElementById("nombre");
-      let dgetBId_email = document.getElementById("email");
-      let dgetBId_comentario = document.getElementById("comentario");
-      let dgetBId_imagen = document.getElementById("imagen");
-  
-      let nombre = dgetBId_nombre.value;
-      let email = dgetBId_email.value;
-      let comentario = dgetBId_comentario.value;
-      let imagen = dgetBId_imagen.value;
-  
-      // Debemos validar el formulario!
       const emailPattern = /^[a-zA-Z0-9]{2,}@[a-zA-Z]{3,}\.(?:[a-zA-Z]{2,4})$/;
       // Si el correo electrónico cumple con el patrón
       if (!emailPattern.test(email)) {
         alert("Correo electrónico no válido.");
         return; // Detiene la ejecución si el email no es válido
     }
-  
+  //si todo es valido lo pasa a firestore 
       createUsuario({
           nombre,
           email,
@@ -183,20 +202,18 @@ document.getElementById("create").addEventListener("click", () => {
   
 
 
-  
-  
-  //Read all
+  //VER TODOS LOS CONTACTOS
   document.getElementById("read-all").addEventListener("click", () => {
     readAll();
   });
   
-  //Read one
+  //BUSCAR UN CONTACTO
   document.getElementById('read-one').addEventListener("click", () => {
     const id = prompt("Introduce el id a buscar");
     readOne(id);
   });
   
-  //Eliminar todo 
+  //ELIMINAR TODOS LOS CONTACTOS  
   document.getElementById('delete-all').addEventListener('click', () => {
     if (confirm("¿Estás seguro de que deseas eliminar todos los usuarios?")) {
     deleteAllUsuarios();
@@ -204,33 +221,32 @@ document.getElementById("create").addEventListener("click", () => {
   }});
   
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   //********FIRESTORE USERS COLLECTION******
   
-  const createUser = (user) => {
-    db.collection("usuarios")
-      .add(user)
-      .then((docRef) => console.log("Document written with ID: ", docRef.id))
-      .catch((error) => console.error("Error adding document: ", error));
-  };
+  // const createUser = (user) => {
+  //   db.collection("usuarios")
+  //     .add(user)
+  //     .then((docRef) => console.log("Document written with ID: ", docRef.id))
+  //     .catch((error) => console.error("Error adding document: ", error));
+  // };
   
-  // Read ONE
-  
-  // Ajustar la función readOne
-function readOne(id) {
-    // Limpia el album para mostrar el resultado
-    cleanUsuarios();
-
-    //Petición a Firestore para leer un documento de la colección album 
-    var docRef = db.collection("usuarios").doc(id);
-
-    docRef.get().then((doc) => {
-        if (doc.exists) {
-            console.log("Document data:", doc.data());
-            printPhoto(doc.data().nombre, doc.data().email, doc.data().comentario, doc.data().imagen, doc.id);
-        } else {
-            console.log("No such document!");
-        }
-    }).catch((error) => {
-        console.log("Error getting document:", error);
-    });
-}
